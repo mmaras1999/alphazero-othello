@@ -3,19 +3,19 @@
 
 #include "agents/agent_base.hpp"
 #include "othello.hpp"
+#include "utils.hpp"
 
 #include <ctime>
 #include <random>
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
 class MctsAgent : public AgentBase {
 private:
     const int DEFAULT_SIZE = 2000000;
 
     struct MctsTreeNode {
-        std::vector <std::pair <std::pair <int, int>, int> > children;
+        std::vector <std::pair <move, int> > children;
         int visits;
         int score;
 
@@ -119,9 +119,8 @@ private:
     }
 
 public:
-    MctsAgent(int player_id, float uct_factor, int iters_per_move)
-        : AgentBase(player_id),
-          uct_factor(uct_factor),
+    MctsAgent(float uct_factor, int iters_per_move)
+        : uct_factor(uct_factor),
           iters_per_move(iters_per_move)
     {
         std::srand(std::time(NULL));
@@ -129,7 +128,7 @@ public:
         tree.emplace_back(root);
     }
 
-    virtual std::pair <int, int> select_move(const GameState& state) override {
+    virtual std::pair<move, std::vector<std::pair<move, int>>> select_move(const GameState& state) override {
         for (int i = 0; i < iters_per_move; ++i) {
             GameState state_copy = root;
             search_iter(state_copy, root_id);
@@ -137,26 +136,32 @@ public:
 
         int best_move = 0;
         float best_value = -1e9;
+        std::vector <std::pair<move, int>> policy(tree[root_id].children.size());
 
         for (int ch = 0; ch < tree[root_id].children.size(); ++ch) {
             auto mv = tree[root_id].children[ch];
 
             if (mv.second != -1) {
+                policy[ch] = {mv.first, tree[mv.second].visits};
                 float ch_value = tree[mv.second].score / (float)tree[mv.second].visits;
-
-                std::cout << mv.first.first << " " << mv.first.second << " " << ch_value << std::endl;
 
                 if (best_value < ch_value) {
                     best_value = ch_value;
                     best_move = ch;
                 }
             }
+            else {
+                policy[ch] = {mv.first, 0};
+            }
         }
 
-        return tree[root_id].children[best_move].first;
+        return {
+            tree[root_id].children[best_move].first,
+            policy
+        };
     }
 
-    virtual void make_move(const std::pair<int, int>& move) override {
+    virtual void make_move(const move& move) override {
         root.make_move(move);
 
         for (auto& mv : tree[root_id].children) {

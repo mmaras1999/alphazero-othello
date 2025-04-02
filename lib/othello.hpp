@@ -1,6 +1,8 @@
 #ifndef OTHELLO
 #define OTHELLO
 
+#include "utils.hpp"
+
 #include <vector>
 #include <string>
 
@@ -70,8 +72,8 @@ public:
         current_player = 2;  // set the player to black
     }
 
-    std::vector <std::pair <int, int> > get_valid_moves() const {
-        std::vector <std::pair <int, int> > valid_moves;
+    std::vector <move> get_valid_moves() const {
+        std::vector <move> valid_moves;
         
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -88,7 +90,7 @@ public:
         return valid_moves;
     }
 
-    void make_move(const std::pair<int, int>& move) {
+    void make_move(const move& move) {
         // assumes that the move is valid!
         if (move.first == -1) {
             // skip move
@@ -184,6 +186,33 @@ public:
         }
 
         return board;
+    }
+
+    std::vector <bool> get_tensor_representation() const {
+        std::vector <bool> tensor(3 * 64);
+
+        // first player stones
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                tensor[i * 8 + j] = (game_board[i][j] == 1);
+            }
+        }
+
+        // second player stones
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                tensor[64 + i * 8 + j] = (game_board[i][j] == 2);
+            }
+        }
+
+        // current player encoding
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                tensor[128 + i * 8 + j] = (current_player == 2);
+            }
+        }
+
+        return tensor;
     }
 };
 
