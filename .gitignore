@@ -3,3 +3,5 @@
 **/models/*
 **/datasets/*
 **/lightning_logs/*
+**/build/*
+**/__pycache__/*
