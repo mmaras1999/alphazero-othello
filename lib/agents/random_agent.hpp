@@ -15,7 +15,7 @@ public:
         std::mt19937 mt(seed);
     }
 
-    virtual std::pair<move, std::vector<std::pair<move, int>>> select_move(const GameState& state) override {
+    virtual std::pair<move, std::vector<std::pair<move, int>>> select_move(GameState& state) override {
         auto valid_moves = state.get_valid_moves();
 
         std::uniform_int_distribution<int> dist(0, valid_moves.size() - 1);

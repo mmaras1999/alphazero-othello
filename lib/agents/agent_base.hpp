@@ -6,7 +6,7 @@
 
 class AgentBase {
 public:
-    virtual std::pair<move, std::vector <std::pair <move, int>>> select_move(const GameState& state) = 0;
+    virtual std::pair<move, std::vector <std::pair <move, int>>> select_move(GameState& state) = 0;
     virtual void make_move(const move& move) = 0;
 };
 

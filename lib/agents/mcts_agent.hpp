@@ -19,7 +19,7 @@ private:
         int visits;
         int score;
 
-        MctsTreeNode(const GameState& state) {
+        MctsTreeNode(GameState& state) {
             auto valid_moves = state.get_valid_moves();
             children.reserve(64);
 
@@ -37,11 +37,12 @@ private:
     int root_id = 0;
     float uct_factor;
     int iters_per_move;
+    std::mt19937 generator;
 
     int rollout(GameState& state, int player) {
         while (not state.is_terminal()) {
             auto valid_moves = state.get_valid_moves();
-            int move_id = std::rand() % valid_moves.size();
+            int move_id = generator() % valid_moves.size();
 
             state.make_move(valid_moves[move_id]);
         }
@@ -123,12 +124,17 @@ public:
         : uct_factor(uct_factor),
           iters_per_move(iters_per_move)
     {
-        std::srand(std::time(NULL));
         tree.reserve(DEFAULT_SIZE);
         tree.emplace_back(root);
     }
 
-    virtual std::pair<move, std::vector<std::pair<move, int>>> select_move(const GameState& state) override {
+    MctsAgent(float uct_factor, int iters_per_move, uint_fast32_t seed)
+        : MctsAgent(uct_factor, iters_per_move)
+    {
+        generator.seed(seed);
+    }
+
+    virtual std::pair<move, std::vector<std::pair<move, int>>> select_move(GameState& state) override {
         for (int i = 0; i < iters_per_move; ++i) {
             GameState state_copy = root;
             search_iter(state_copy, root_id);

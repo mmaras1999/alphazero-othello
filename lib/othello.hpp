@@ -8,7 +8,7 @@
 
 struct GameState {
 private:
-    const std::vector <std::pair <char, char> > MOVE_DIRECTIONS = {
+    const std::pair <char, char> MOVE_DIRECTIONS[8] = {
         {-1, -1},
         {-1,  0},
         {-1,  1},
@@ -58,6 +58,8 @@ private:
         return false;
     }
 
+    bool needs_recalculate_moves = true;
+    std::vector <move> valid_moves;
 public:
     unsigned char game_board[8][8];
     int current_player = 2;  // black by default
@@ -70,28 +72,44 @@ public:
         game_board[4][4] = 1;  // white
 
         current_player = 2;  // set the player to black
+        needs_recalculate_moves = true;
+        valid_moves.reserve(64);
     }
 
-    std::vector <move> get_valid_moves() const {
-        std::vector <move> valid_moves;
+    std::vector <move> get_valid_moves() {
+        if (!needs_recalculate_moves) {
+            return valid_moves;
+        }
+
+        valid_moves.clear();
         
+        bool terminal = true;
+
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 if (can_place(i, j, current_player)) {
                     valid_moves.emplace_back(i, j);
+                    terminal = false;
+                }
+
+                if (terminal and can_place(i, j, current_player ^ 3)) {
+                    terminal = false;
                 }
             }
         }
 
-        if (valid_moves.size() == 0 and not is_terminal()) {
+        if (valid_moves.size() == 0 and not terminal) {
             valid_moves.emplace_back(-1, -1);
         }
 
+        needs_recalculate_moves = false;
         return valid_moves;
     }
 
     void make_move(const move& move) {
         // assumes that the move is valid!
+        needs_recalculate_moves = true;
+
         if (move.first == -1) {
             // skip move
             current_player ^= 3;
@@ -134,10 +152,6 @@ public:
             }
         }
 
-        for (auto& dir : MOVE_DIRECTIONS) {
-            
-        }
-
         current_player ^= 3;  // swap players
     }
 
@@ -155,16 +169,9 @@ public:
         return {scores[0], scores[1]};
     }
 
-    bool is_terminal() const {
-        for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                if (can_place(i, j, 1) or can_place(i, j, 2)) {
-                    return false;
-                }
-            }
-        }
-    
-        return true;
+    bool is_terminal() {
+        get_valid_moves();
+        return valid_moves.size() == 0;
     }
 
     std::string draw() const {

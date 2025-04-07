@@ -9,7 +9,7 @@
 
 class HumanAgent : public AgentBase {
 public:
-    virtual std::pair<move, std::vector <std::pair <move, int>>> select_move(const GameState& state) override {
+    virtual std::pair<move, std::vector <std::pair <move, int>>> select_move(GameState& state) override {
         std::cout << "Waiting for move..." << std::endl;
 
         int x, y;
