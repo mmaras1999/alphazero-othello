@@ -1,5 +1,5 @@
-*/.vscode
-*/.venv
-*/models/*
-*/datasets/*
-*/lightning_logs/*
+**/.vscode
+**/.venv
+**/models/*
+**/datasets/*
+**/lightning_logs/*
