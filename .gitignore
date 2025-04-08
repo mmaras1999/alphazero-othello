@@ -4,4 +4,4 @@
 **/datasets/*
 **/lightning_logs/*
 **/build/*
-**/__pycache__/*
+__pycache__/
