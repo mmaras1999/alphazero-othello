@@ -65,13 +65,12 @@ class AlphaZeroModel(torch.nn.Module):
             input_names=["input"],
             output_names=["value", "policy"],
             dynamo=True,
-            dynamic_axes={
-                'input' : {0 : 'batch_size'},
-                'value' : {0 : 'batch_size'},
-                'policy': {0 : 'batch_size'},
-            },
+            # dynamic_axes={
+            #     'input' : {0 : 'batch_size'},
+            #     'value' : {0 : 'batch_size'},
+            #     'policy': {0 : 'batch_size'},
+            # },
         )
-        
 
 
 if __name__ == "__main__":

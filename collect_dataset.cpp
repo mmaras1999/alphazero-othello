@@ -28,8 +28,8 @@ void collect_data_from_games(int num_games, uint_fast32_t seed) {
         game_id++;
         std_out_mutex.unlock();
 
-        auto agent1 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3f, 800);
-        auto agent2 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3f, 800);
+        auto agent1 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3f, 800, random_gen());
+        auto agent2 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3f, 800, random_gen());
 
         bool swap_agents = random_gen() % 2;
 

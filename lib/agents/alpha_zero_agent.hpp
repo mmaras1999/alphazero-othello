@@ -13,6 +13,7 @@
 class AlphaZeroAgent : public AgentBase {
 private:
     const int DEFAULT_SIZE = 2000000;
+    const int BEST_MOVE_THRESH = 10;
     struct Child {
         move mv;
         int node_id;
@@ -74,6 +75,7 @@ private:
     float puct_factor;
     int iters_per_move;
     std::mt19937 generator;
+    int move_cnt;
 
     OnnxModel model;
 
@@ -83,7 +85,7 @@ private:
         int best_ch = -1;
         float best_puct_score = -1e9;
         
-        float nominator = std::sqrtf(tree[parent].visits);
+        float nominator = puct_factor * std::sqrtf(tree[parent].visits);
 
         for (int i = 0; i < tree[parent].children.size(); ++i) {
             auto& child = tree[parent].children[i];
@@ -96,7 +98,7 @@ private:
                 exploit_score = tree[child.node_id].score / visits;
             }
 
-            float puct_score = exploit_score + puct_factor * child.policy_score * nominator / (1 + visits);
+            float puct_score = exploit_score + child.policy_score * nominator / (1 + visits);
 
             if (puct_score > best_puct_score) {
                 best_ch = i;
@@ -145,6 +147,7 @@ public:
         : AgentBase(),
           puct_factor(puct_factor),
           iters_per_move(iters_per_move),
+          move_cnt(0),
           model(model_path) {
         tree.reserve(DEFAULT_SIZE);
         tree.emplace_back(root, model);
@@ -182,14 +185,29 @@ public:
             }
         }
 
-        return {
-            tree[root_id].children[best_move].mv,
-            policy
-        };
+        if (move_cnt > BEST_MOVE_THRESH) {
+            return {
+                tree[root_id].children[best_move].mv,
+                policy
+            };
+        }
+        else {
+            std::vector <int> weights;
+            for (auto& p : policy) {
+                weights.push_back(p.second);
+            }
+
+            std::discrete_distribution<> random_dist(weights.begin(), weights.end());
+            return {
+                policy[random_dist(generator)].first,
+                policy
+            };
+        }
     }
 
     virtual void make_move(const move& move) override {
         root.make_move(move);
+        ++move_cnt;
 
         for (auto& ch : tree[root_id].children) {
             if (ch.mv == move) {

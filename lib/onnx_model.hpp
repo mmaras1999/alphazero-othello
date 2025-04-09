@@ -28,17 +28,36 @@ private:
     std::array <float, 1> value;
     std::array <float, 65> policy;
 
+    Value output_tensors[2];
+
 public:
     OnnxModel(std::string model_path) 
         : env(Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, "Default")),
           memory_info(MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemType::OrtMemTypeDefault)),
-          model_path(model_path)
+          model_path(model_path),
+          output_tensors{Value(nullptr), Value(nullptr)}
         {
         sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
         OrtCUDAProviderOptions cuda_options;
         sessionOptions.AppendExecutionProvider_CUDA(cuda_options);
         
         session = Session(env, model_path.c_str(), sessionOptions);
+
+        output_tensors[0] = Value::CreateTensor<float>(
+            memory_info, 
+            value.data(), 
+            OUTPUT_SIZE_VALUE,
+            output_shape_value.data(),
+            output_shape_value.size()
+        );
+
+        output_tensors[1] = Value::CreateTensor<float>(
+            memory_info, 
+            policy.data(), 
+            OUTPUT_SIZE_POLICY,
+            output_shape_policy.data(),
+            output_shape_policy.size()
+        );
     }
 
     std::pair<float, std::array <float, 65>> run_inference(std::vector <float>& board_tensor) {
@@ -50,23 +69,6 @@ public:
             input_shape.data(),
             input_shape.size()
         );
-
-        Value output_tensors[2] = {
-            Value::CreateTensor<float>(
-                memory_info, 
-                value.data(), 
-                OUTPUT_SIZE_VALUE,
-                output_shape_value.data(),
-                output_shape_value.size()
-            ),
-            Value::CreateTensor<float>(
-                memory_info, 
-                policy.data(), 
-                OUTPUT_SIZE_POLICY,
-                output_shape_policy.data(),
-                output_shape_policy.size()
-            )
-        };
 
         session.Run(RunOptions{nullptr}, input_names, &input_tensor, 1, output_names, output_tensors, 2);
 
