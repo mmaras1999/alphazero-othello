@@ -28,7 +28,7 @@ class LitAlphaZero(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, policy, value = batch
-        pred_value, pred_policy = self.model(x)
+        pred_value, pred_policy = self.model.forward_train(x)
 
         policy_loss = self.policy_loss_fn(pred_policy, policy)
         value_loss = self.value_loss_fn(pred_value, value)
@@ -46,7 +46,7 @@ class LitAlphaZero(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    batch_size = 128
+    batch_size = 64
 
     dataset = load_dataset("datasets/iter_0")
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     model = AlphaZeroModel(256, 8)
     lit_module = LitAlphaZero(model)
 
-    trainer = pl.Trainer(max_epochs=10)
+    trainer = pl.Trainer(max_epochs=20)
     trainer.fit(model=lit_module, train_dataloaders=dataloader)
 
     onnx_model = lit_module.model.export_onnx()

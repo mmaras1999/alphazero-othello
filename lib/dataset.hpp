@@ -27,17 +27,13 @@ public:
         samples.reserve(max_size);
     }
 
-    void add(std::vector<bool> board_tensor, std::vector<std::pair <move, int>> policy, int value) {
+    void add(std::vector<float> board_tensor, std::vector<std::pair <move, int>> policy, int value) {
         if (last_sample_ptr == samples.size()) {
             samples.push_back(Sample{{}, {}, 0.0f});
         }
-
+        samples[last_sample_ptr].board = board_tensor;
         samples[last_sample_ptr].value = value;
         samples[last_sample_ptr].policy.resize(65, 0.0f);
-
-        for (auto x : board_tensor) {
-            samples[last_sample_ptr].board.emplace_back(x);
-        }
         
         int sum = 0;
 
@@ -46,11 +42,9 @@ public:
         });
 
         for (auto& mv : policy) {
-            if (mv.first.first == -1 and mv.first.second == -1) {
-                samples[last_sample_ptr].policy[64] = mv.second / (float)sum;
-            } else {
-                samples[last_sample_ptr].policy[8 * mv.first.first + mv.first.second] = mv.second / (float)sum;
-            }
+            int id = move_to_id(mv.first);
+
+            samples[last_sample_ptr].policy[id] = mv.second / (float)sum;
         }
         
         last_sample_ptr = (last_sample_ptr + 1) % max_size;

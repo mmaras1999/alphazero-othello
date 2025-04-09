@@ -3,6 +3,7 @@
 #include "agents/human_agent.hpp"
 #include "agents/random_agent.hpp"
 #include "agents/mcts_agent.hpp"
+#include "agents/alpha_zero_agent.hpp"
 
 #include <iostream>
 #include <memory>
@@ -16,8 +17,8 @@ int main() {
     for (int i = 0; i < repeats; ++i) {
         std::cout << "Starting game " << i + 1 << std::endl;
 
-        auto agent1 = std::make_unique<RandomAgent>(123);
-        auto agent2 = std::make_unique<MctsAgent>(1.41f, 1600);
+        auto agent1 = std::make_unique<MctsAgent>(1.4, 1600, 123);
+        auto agent2 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3, 1600);
 
         bool swap_agents = rand() % 2;
 

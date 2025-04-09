@@ -8,7 +8,7 @@
 
 
 struct GameMove {
-    std::vector <bool> board;
+    std::vector <float> board;
     std::vector <std::pair<move, int>> policy;
     int player;
     int value;

@@ -50,6 +50,10 @@ class AlphaZeroModel(torch.nn.Module):
 
     def forward(self, x):
         x = self.base_layers(x)
+        return self.value_head(x), torch.nn.functional.softmax(self.policy_head(x), 1)
+    
+    def forward_train(self, x):
+        x = self.base_layers(x)
         return self.value_head(x), self.policy_head(x)
     
     def export_onnx(self):
@@ -80,4 +84,4 @@ if __name__ == "__main__":
     onnx_model.optimize()
 
     os.makedirs("models/", exist_ok=True)
-    onnx_model.save("models/model.onnx")
+    onnx_model.save("models/trained.onnx")

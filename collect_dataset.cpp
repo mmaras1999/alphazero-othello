@@ -3,6 +3,7 @@
 #include "agents/human_agent.hpp"
 #include "agents/random_agent.hpp"
 #include "agents/mcts_agent.hpp"
+#include "agents/alpha_zero_agent.hpp"
 #include "dataset.hpp"
 
 #include <iostream>
@@ -27,8 +28,8 @@ void collect_data_from_games(int num_games, uint_fast32_t seed) {
         game_id++;
         std_out_mutex.unlock();
 
-        auto agent1 = std::make_unique<MctsAgent>(1.41f, 1600, random_gen());
-        auto agent2 = std::make_unique<MctsAgent>(1.41f, 1600, random_gen());
+        auto agent1 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3f, 800);
+        auto agent2 = std::make_unique<AlphaZeroAgent>("models/trained.onnx", 0.3f, 800);
 
         bool swap_agents = random_gen() % 2;
 

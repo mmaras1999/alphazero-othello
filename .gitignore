@@ -1,7 +1,8 @@
-**/.vscode
-**/.venv
-**/models/*
-**/datasets/*
-**/lightning_logs/*
-**/build/*
+.vscode
+.venv
 __pycache__/
+
+models/*
+datasets/*
+lightning_logs/*
+build/*

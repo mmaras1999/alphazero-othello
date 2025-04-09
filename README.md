@@ -3,7 +3,4 @@
 ### Requirements:
 - Python 3.12 + requirements.txt installed
 - g++
-
-### Installation
-
-TBD
+- ONNX Runtime 1.20.2 (+ CUDA 12.x, cudnn, nccl, etc.)

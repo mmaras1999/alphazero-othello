@@ -195,8 +195,8 @@ public:
         return board;
     }
 
-    std::vector <bool> get_tensor_representation() const {
-        std::vector <bool> tensor(3 * 64);
+    std::vector <float> get_tensor_representation() const {
+        std::vector <float> tensor(3 * 64);
 
         // first player stones
         for (int i = 0; i < 8; ++i) {
